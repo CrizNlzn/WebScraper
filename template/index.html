@@ -1,0 +1,46 @@
+<!-- Frontend HTML -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scraped Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Web Scraper</h1>
+    <form id="scrapeForm">
+        <input type="url" id="urlInput" placeholder="Enter URL" required>
+        <button type="submit">Scrape</button>
+    </form>
+
+    <h2 id="title"></h2>
+    <img id="image" src="" alt="Scraped Image" style="max-width: 100%; display: none;">
+    <p id="summary"></p>
+
+    <script>
+        document.getElementById('scrapeForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent form from submitting the default way
+
+            const url = document.getElementById('urlInput').value;
+
+            const response = await fetch('/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url })
+            });
+
+            const data = await response.json();
+
+            document.getElementById('title').innerText = data.title;
+            document.getElementById('image').src = data.image_url;
+            document.getElementById('image').style.display = 'block';
+            document.getElementById('summary').innerText = data.summary;
+        });
+    </script>
+</body>
+</html>
+
