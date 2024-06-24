@@ -34,11 +34,24 @@ def scrape():
     img_tag = soup.find('img')
     image_url = img_tag['src'] if img_tag else 'No image found'
 
-    # Extracting all textual content (excluding script and style tags)
+    # Extracting all textual content from specific tags (excluding script and style)
     excluded_tags = ['script', 'style']
-    text_content = ' '.join([p.get_text(separator='\n') for p in soup.find_all('p') if p not in excluded_tags])
-    text_content += ' '.join([div.get_text(separator='\n') for div in soup.find_all('div') if div.get('class') and 'content' in div.get('class') and div not in excluded_tags])
-    
+    included_tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'li', 'div']
+
+    def extract_text(elements):
+        text_set = set()
+        for element in elements:
+            if element.name not in excluded_tags:
+                text = ' '.join(element.get_text(separator=' ').split())
+                text_set.add(text)
+        return ' '.join(sorted(text_set, key=lambda x: elements.index(next(e for e in elements if ' '.join(e.get_text(separator=' ').split()) == x))))
+
+    all_elements = []
+    for tag in included_tags:
+        all_elements.extend(soup.find_all(tag))
+
+    text_content = extract_text(all_elements)
+
     # Return the extracted data as JSON response
     return jsonify({
         'title': title,
